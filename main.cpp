@@ -82,3 +82,19 @@ class NOR : public boolop
     }
     bool eval(bool a, bool b) const override { return !(a || b); }
 };
+
+string containsop(const string &stri, const string &word)
+{
+    size_t pos = stri.find(word);
+    while (pos != string::npos)
+    {
+        bool before = (pos == 00) || !isalpha(stri[pos - 1]);
+        bool after = (pos + word.size() >= stri.size()) || !isalpha(stri[pos + word.size()]);
+        if (before && after)
+        {
+            return true;
+        }
+        pos = stri.find(word, pos + 1);
+    }
+    return false;
+}
