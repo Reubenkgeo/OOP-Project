@@ -98,3 +98,77 @@ string containsop(const string &stri, const string &word)
     }
     return false;
 }
+
+class boolexpression
+{
+private:
+    string expression;
+    bool a, b, c;
+    bool a, b, c;
+
+public:
+    boolexpression()
+    {
+        expression = "";
+        a = false;
+        b = false;
+        c = false;
+    }
+    void expressionset(const string &epress)
+    {
+        expression = uppercase(epress);
+        a = (expression.find('A') != string::npos);
+        b = (expression.find('B') != string::npos);
+        c = (expression.find('C') != string::npos);
+        opsfound.clear();
+        if (containsop(expression, "AND"))
+        {
+            opsfound.push_back("AND");
+        }
+        if (containsop(expression, "OR"))
+        {
+            opsfound.push_back("OR");
+        }
+        if (containsop(expression, "XOR"))
+        {
+            opsfound.push_back("XOR");
+        }
+        if (containsop(expression, "NOT"))
+        {
+            opsfound.push_back("NOT");
+        }
+        if (containsop(expression, "NAND"))
+        {
+            opsfound.push_back("NAND");
+        }
+        if (containsop(expression, "NOR"))
+        {
+            opsfound.push_back("NOR");
+        }
+        if (int(opsfound.size()) > 3)
+        {
+            cout << "Operator count has exceeded the defined limit.\n";
+        }
+    }
+};
+
+string epressget() onst
+{
+    return expression;
+}
+bool geta() const
+{
+    return a;
+}
+bool getb() const
+{
+    return b;
+}
+bool getc() const
+{
+    return c;
+}
+vector<string> getopsfound() const
+{
+    return opsfound;
+}
