@@ -14,15 +14,15 @@ using namespace std;
 class boolop
 {
 public:
-    virtual string nameget() const = 0;
-    virtual bool eval(bool a, bool b) const { return false; }
-    virtual string explanget() const = 0;
+    virtual string nameget() const = 0;                       // returns the operator name
+    virtual bool eval(bool a, bool b) const { return false; } // evaluates two input operators
+    virtual string explanget() const = 0;                     // returns a readable explanation
     virtual bool noteval(bool a) const { return false; }
     virtual bool isnot() const { return false; }
     virtual ~boolop() {}
 };
 
-class AND : public boolop
+class AND : public boolop // AND operator
 {
 public:
     string nameget() const override { return "AND"; }
@@ -33,7 +33,7 @@ public:
     bool eval(bool a, bool b) const override { return a && b; }
 };
 
-class OR : public boolop
+class OR : public boolop // OR operator
 {
 public:
     string nameget() const override { return "OR"; }
@@ -44,7 +44,7 @@ public:
     bool eval(bool a, bool b) const override { return a || b; }
 };
 
-class XOR : public boolop
+class XOR : public boolop // XOR Operator
 {
 public:
     string nameget() const override { return "XOR"; }
@@ -55,7 +55,7 @@ public:
     bool eval(bool a, bool b) const override { return a != b; }
 };
 
-class NOT : public boolop
+class NOT : public boolop // NOT operator
 {
 public:
     string nameget() const override { return "NOT"; }
@@ -67,7 +67,7 @@ public:
     bool isnot() const override { return true; }
 };
 
-class NAND : public boolop
+class NAND : public boolop // NAND operator
 {
 public:
     string nameget() const override { return "NAND"; }
@@ -78,7 +78,7 @@ public:
     bool eval(bool a, bool b) const override { return !(a && b); }
 };
 
-class NOR : public boolop
+class NOR : public boolop // NOR Operator
 {
 public:
     string nameget() const override { return "NOR"; }
@@ -89,7 +89,7 @@ public:
     bool eval(bool a, bool b) const override { return !(a || b); }
 };
 
-bool containsop(const string &stri, const string &word)
+bool containsop(const string &stri, const string &word) // Chekcs if a given operator keyword shows up as a whole word in the string
 {
     size_t pos = stri.find(word);
     while (pos != string::npos)
@@ -104,7 +104,7 @@ bool containsop(const string &stri, const string &word)
     }
     return false;
 }
-string uppercase(string str)
+string uppercase(string str) // Converts a string to uppercase, so it should allow the usage of lowercase letters without worrying about case sensitivity
 {
     for (int i = 0; i < (int)str.size(); i++)
         if (str[i] >= 'a' && str[i] <= 'z')
@@ -112,12 +112,12 @@ string uppercase(string str)
     return str;
 }
 
-class boolexpression
+class boolexpression // Stores and evaluates a boolean expression which is entered by the user
 {
 private:
     string expression;
     bool a, b, c;
-    vector<string> opsfound;
+    vector<string> opsfound; // list of operators which are detected in the current expression
 
 public:
     boolexpression()
@@ -127,10 +127,10 @@ public:
         b = false;
         c = false;
     }
-    void setexpression(const string &epress)
+    void setexpression(const string &epress) // Stores the expression and detects which variables and operators are used
     {
         expression = uppercase(epress);
-        a = (expression.find('A') != string::npos);
+        a = (expression.find('A') != string::npos); // Checks which variables appear in the expression
         b = (expression.find('B') != string::npos);
         c = (expression.find('C') != string::npos);
         opsfound.clear();
@@ -152,13 +152,13 @@ public:
             cout << "[WARNING] More than 3 operators detected. Results may be unexpected.\n";
         }
     }
-    string getexpression() const { return expression; }
+    string getexpression() const { return expression; } //  For the expression string and variable info
     bool geta() const { return a; }
     bool getb() const { return b; }
     bool getc() const { return c; }
     vector<string> getOpsFound() const { return opsfound; }
 
-    bool evaluate(bool valA, bool valB, bool valC) const
+    bool evaluate(bool valA, bool valB, bool valC) const // This is meant for evaluating the expression for the given values for A,B,C
     {
         vector<string> tokens;
         string current = "";
@@ -190,8 +190,8 @@ public:
         }
         if (!current.empty())
             tokens.push_back(current);
-        vector<bool> valuestack;
-        vector<string> opstack;
+        vector<bool> valuestack; // holds the boolean values which we get from the calculations
+        vector<string> opstack;  // holds operators which are waiting to be applied
 
         auto applyTop = [&]()
         {
@@ -199,13 +199,13 @@ public:
             opstack.pop_back();
             if (op == "NOT")
             {
-                bool a = valuestack.back();
+                bool a = valuestack.back(); // since NOT is a unary operator it only has one value
                 valuestack.pop_back();
                 valuestack.push_back(!a);
             }
             else
             {
-                bool b = valuestack.back();
+                bool b = valuestack.back(); // Unlike NOT these operators are binary
                 valuestack.pop_back();
                 bool a = valuestack.back();
                 valuestack.pop_back();
@@ -223,7 +223,7 @@ public:
             }
         };
 
-        auto precedence = [](const string &op) -> int
+        auto precedence = [](const string &op) -> int // Meant to return precedence level
         {
             if (op == "NOT")
                 return 3;
@@ -278,7 +278,7 @@ public:
         return false;
     }
 };
-class TruthTable
+class TruthTable // This is meant to print the truth table to any output stream
 {
 private:
     boolexpression &expr;
@@ -313,7 +313,7 @@ public:
             out << "-";
         out << "|\n";
 
-        int numVars = (useA ? 1 : 0) + (useB ? 1 : 0) + (useC ? 1 : 0);
+        int numVars = (useA ? 1 : 0) + (useB ? 1 : 0) + (useC ? 1 : 0); // Calculates number of rows
         int numRows = 1;
         for (int i = 0; i < numVars; i++)
             numRows *= 2;
@@ -358,7 +358,7 @@ public:
         }
     }
 };
-class filehandler
+class filehandler // Handles saving results to a file and also loading these previously saved files as per request
 {
 public:
     static void save(const string &filename, boolexpression &expr, TruthTable &table)
@@ -394,7 +394,7 @@ public:
             if (op != nullptr)
             {
                 file << "  - " << op->explanget() << "\n";
-                delete op;
+                delete op; // just to clean up
             }
         }
         file << "\nTruth Table:\n";
@@ -403,7 +403,7 @@ public:
         file.close();
         cout << "Saved successfully to '" << filename << "'!\n";
     }
-    static void load(const string &filename)
+    static void load(const string &filename) // Reads and prints all lines from already saved files
     {
         ifstream file(filename);
         if (!file.is_open())
@@ -474,7 +474,7 @@ int main()
     int choice = 0;
     while (true)
     {
-        cout << "MENU\n";
+        cout << "MENU\n"; // main menu
         cout << "1) enter a new Boolean expression\n";
         cout << "2) load a previously saved file\n";
         cout << "3) exit\n";
@@ -485,7 +485,7 @@ int main()
 
         if (choice == 1)
         {
-            cout << "enter Boolean Expression\n";
+            cout << "enter Boolean Expression\n"; // asks user to enter a boolean expression
             cout << "variables : A  B  C\n";
             cout << "operators : AND  OR  NOT  XOR  NAND  NOR\n";
             cout << "can use a max of 3 operators\n";
@@ -501,7 +501,7 @@ int main()
             cout << "\nOperators Detected and Explained:\n";
             printexplans(expr);
 
-            cout << "\nGenerating Truth Table...\n\n";
+            cout << "\nGenerating Truth Table...\n\n"; // Generates and displays a truth table from the entered expression
             TruthTable table(expr);
             table.print(cout);
 
@@ -510,7 +510,7 @@ int main()
             cin >> saveChoice;
             cin.ignore();
 
-            if (saveChoice == 'Y' || saveChoice == 'y')
+            if (saveChoice == 'Y' || saveChoice == 'y') // Asks user if they want to save the results
             {
                 cout << "Enter filename (e.g. myresult.txt): ";
                 string filename;
@@ -519,7 +519,7 @@ int main()
             }
         }
 
-        else if (choice == 2)
+        else if (choice == 2) // Load and display a previously saved file
         {
             cout << "Enter filename to load: ";
             string filename;
