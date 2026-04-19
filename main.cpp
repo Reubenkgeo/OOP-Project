@@ -133,6 +133,48 @@ public:
         }
         
         }
-    }
+    string getexpression() const { return expression; }
+    bool geta() const { return a; } 
+    bool getb() const { return b; }
+    bool getc() const { return c; }
+    vector<string> getOpsFound() const { return opsfound; }
 
-
+    bool evaluate(bool valA, bool valB, bool valC) const{
+        vector<string> tokens;
+        string current = "";
+        for (int i = 0; i < (int)expression.size(); i++){
+            char ch = expression[i];
+ 
+            if (ch == ' ') {
+                if (!current.empty()) {tokens.push_back(current); current = "";}
+            }
+            else if (ch == '(' || ch == ')'){
+                if (!current.empty()) {tokens.push_back(current); current = "";}
+                tokens.push_back(string(1, ch));
+            }
+            else{
+                current += ch;
+            }
+        }
+        if (!current.empty()) tokens.push_back(current);
+        vector<bool> valuestack;
+        vector<string> opstack;
+        
+        auto applyTop = [&]()
+        {
+            string op = opstack.back(); opstack.pop_back();
+            if (op == "NOT"){
+                bool a = valuestack.back(); valuestack.pop_back();
+                valuestack.push_back(!a);
+            } else{
+                bool b = valuestack.back(); valuestack.pop_back();
+                bool a = valuestack.back(); valuestack.pop_back();
+ 
+                if (op == "AND")  valuestack.push_back(a && b);
+                else if (op == "OR")   valuestack.push_back(a || b);
+                else if (op == "XOR")  valuestack.push_back(a != b);
+                else if (op == "NAND") valuestack.push_back(!(a && b));
+                else if (op == "NOR")  valuestack.push_back(!(a || b));
+            }
+        };
+        
