@@ -104,7 +104,7 @@ class boolexpression
 private:
     string expression;
     bool a, b, c;
-    bool a, b, c;
+    vector<string> opsfound; 
 
 public:
     boolexpression()
@@ -121,54 +121,18 @@ public:
         b = (expression.find('B') != string::npos);
         c = (expression.find('C') != string::npos);
         opsfound.clear();
-        if (containsop(expression, "AND"))
-        {
-            opsfound.push_back("AND");
+        if (containsop(expression, "NAND")) opsfound.push_back("NAND");
+        if (containsop(expression, "NOR"))  opsfound.push_back("NOR");
+        if (containsop(expression, "AND"))  opsfound.push_back("AND");
+        if (containsop(expression, "OR"))   opsfound.push_back("OR");
+        if (containsop(expression, "NOT"))  opsfound.push_back("NOT");
+        if (containsop(expression, "XOR"))  opsfound.push_back("XOR");
+ 
+        if ((int)opsfound.size() > 3){
+            cout << "[WARNING] More than 3 operators detected. Results may be unexpected.\n";
         }
-        if (containsop(expression, "OR"))
-        {
-            opsfound.push_back("OR");
-        }
-        if (containsop(expression, "XOR"))
-        {
-            opsfound.push_back("XOR");
-        }
-        if (containsop(expression, "NOT"))
-        {
-            opsfound.push_back("NOT");
-        }
-        if (containsop(expression, "NAND"))
-        {
-            opsfound.push_back("NAND");
-        }
-        if (containsop(expression, "NOR"))
-        {
-            opsfound.push_back("NOR");
-        }
-        if (int(opsfound.size()) > 3)
-        {
-            cout << "Operator count has exceeded the defined limit.\n";
+        
         }
     }
-};
 
-string epressget() onst
-{
-    return expression;
-}
-bool geta() const
-{
-    return a;
-}
-bool getb() const
-{
-    return b;
-}
-bool getc() const
-{
-    return c;
-}
-vector<string> getopsfound() const
-{
-    return opsfound;
-}
+
