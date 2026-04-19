@@ -453,3 +453,67 @@ void printexplans(boolexpression &expr)
         }
     }
 }
+int main()
+{
+    cout << "\n><================================================><\n";
+    cout << "\n               boolean truth table sim              \n";
+    cout << "\n><================================================><\n";
+    int choice = 0;
+    while (true)
+    {
+        cout << "MENU\n";
+        cout << "1) enter a new Boolean expression\n";
+        cout << "2) load a previously saved file\n";
+        cout << "3) exit\n";
+        cout << "choice: ";
+        cin >> choice;
+        cin.ignore();
+        cout << "\n";
+
+        if (choice == 1)
+        {
+            cout << "enter Boolean Expression\n";
+            cout << "variables : A  B  C\n";
+            cout << "operators : AND  OR  NOT  XOR  NAND  NOR\n";
+            cout << "can use a max of 3 operators\n";
+            cout << "example : A AND B OR NOT C / (A AND B) OR (NOT C)\n";
+            cout << "> ";
+
+            string exprInput;
+            getline(cin, exprInput);
+
+            boolexpression expr;
+            expr.setexpression(exprInput);
+
+            cout << "\nOperators Detected and Explained:\n";
+            printexplans(expr);
+
+            cout << "\nGenerating Truth Table...\n\n";
+            TruthTable table(expr);
+            table.print(cout);
+
+            cout << "\nWould you like to save to a file? (Y/N): ";
+            char saveChoice;
+            cin >> saveChoice;
+            cin.ignore();
+
+            if (saveChoice == 'Y' || saveChoice == 'y')
+            {
+                cout << "Enter filename (e.g. myresult.txt): ";
+                string filename;
+                getline(cin, filename);
+                filehandler::save(filename, expr, table);
+            }
+        }
+
+        else if (choice == 2)
+        {
+        }
+
+        else if (choice == 3)
+        {
+            cout << "Exiting program. Goodbye!\n";
+            break;
+        }
+    }
+}
