@@ -345,3 +345,77 @@ public:
         }
     }
 };
+class filehandler
+{
+public:
+    static void save(const string &filename, boolexpression &expr, TruthTable &table)
+    {
+        ofstream file(filename);
+        if (!file.is_open())
+        {
+            cout << "Could not open file: " << filename << "\n";
+            return;
+        }
+
+        file << "=== BOOLEAN TRUTH TABLE SIMULATOR ===\n\n";
+        file << "Expression: " << expr.getexpression() << "\n\n";
+        file << "Operators Detected and Explained:\n";
+
+        vector<string> ops = expr.getOpsFound();
+        for (int i = 0; i < (int)ops.size(); i++)
+        {
+            boolop *op = nullptr;
+            if (ops[i] == "AND")
+                op = new AND();
+            else if (ops[i] == "OR")
+                op = new OR();
+            else if (ops[i] == "NOT")
+                op = new NOT();
+            else if (ops[i] == "XOR")
+                op = new XOR();
+            else if (ops[i] == "NAND")
+                op = new NAND();
+            else if (ops[i] == "NOR")
+                op = new NOR();
+
+            if (op != nullptr)
+            {
+                file << "  - " << op->explanget() << "\n";
+                delete op;
+            }
+        }
+        file << "\nTruth Table:\n";
+        table.print(file);
+        file << "\n[Saved by Boolean Truth Table Simulator]\n";
+        file.close();
+        cout << "Saved successfully to '" << filename << "'!\n";
+    }
+    static void load(const string &filename)
+    {
+        ifstream file(filename);
+        if (!file.is_open())
+        {
+            cout << "[ERROR] Could not open file: " << filename << "\n";
+            return;
+        }
+
+        string line;
+        while (getline(file, line))
+        {
+            cout << line << "\n";
+        }
+        file.close();
+    }
+
+    static string readExpression(const string &filename)
+    {
+        ifstream file(filename);
+        string line;
+        while (getline(file, line))
+        {
+            if (line.substr(0, 12) == "Expression: ")
+                return line.substr(12);
+        }
+        return "";
+    }
+};
