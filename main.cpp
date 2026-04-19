@@ -24,6 +24,7 @@ public:
 
 class AND : public boolop
 {
+public:
     string nameget() const override { return "AND"; }
     string explanget() const override
     {
@@ -34,6 +35,7 @@ class AND : public boolop
 
 class OR : public boolop
 {
+public:
     string nameget() const override { return "OR"; }
     string explanget() const override
     {
@@ -44,6 +46,7 @@ class OR : public boolop
 
 class XOR : public boolop
 {
+public:
     string nameget() const override { return "XOR"; }
     string explanget() const override
     {
@@ -54,6 +57,7 @@ class XOR : public boolop
 
 class NOT : public boolop
 {
+public:
     string nameget() const override { return "NOT"; }
     string explanget() const override
     {
@@ -65,6 +69,7 @@ class NOT : public boolop
 
 class NAND : public boolop
 {
+public:
     string nameget() const override { return "NAND"; }
     string explanget() const override
     {
@@ -75,6 +80,7 @@ class NAND : public boolop
 
 class NOR : public boolop
 {
+public:
     string nameget() const override { return "NOR"; }
     string explanget() const override
     {
@@ -98,6 +104,13 @@ bool containsop(const string &stri, const string &word)
     }
     return false;
 }
+string uppercase(string str)
+{
+    for (int i = 0; i < (int)str.size(); i++)
+        if (str[i] >= 'a' && str[i] <= 'z')
+            str[i] = str[i] - 32;
+    return str;
+}
 
 class boolexpression
 {
@@ -114,7 +127,7 @@ public:
         b = false;
         c = false;
     }
-    void expressionset(const string &epress)
+    void setexpression(const string &epress)
     {
         expression = uppercase(epress);
         a = (expression.find('A') != string::npos);
@@ -508,6 +521,10 @@ int main()
 
         else if (choice == 2)
         {
+            cout << "Enter filename to load: ";
+            string filename;
+            getline(cin, filename);
+            filehandler::load(filename);
         }
 
         else if (choice == 3)

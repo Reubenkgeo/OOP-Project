@@ -1,0 +1,12 @@
+=== BOOLEAN TRUTH TABLE SIMULATOR ===
+
+Expression: 1 0 1
+
+Operators Detected and Explained:
+
+Truth Table:
+| 1 0 1 |
+|--------|
+|   0   |
+
+[Saved by Boolean Truth Table Simulator]
