@@ -83,12 +83,12 @@ class NOR : public boolop
     bool eval(bool a, bool b) const override { return !(a || b); }
 };
 
-string containsop(const string &stri, const string &word)
+bool containsop(const string &stri, const string &word)
 {
     size_t pos = stri.find(word);
     while (pos != string::npos)
     {
-        bool before = (pos == 00) || !isalpha(stri[pos - 1]);
+        bool before = (pos == 0) || !isalpha(stri[pos - 1]);
         bool after = (pos + word.size() >= stri.size()) || !isalpha(stri[pos + word.size()]);
         if (before && after)
         {
@@ -104,7 +104,7 @@ class boolexpression
 private:
     string expression;
     bool a, b, c;
-    vector<string> opsfound; 
+    vector<string> opsfound;
 
 public:
     boolexpression()
@@ -121,60 +121,227 @@ public:
         b = (expression.find('B') != string::npos);
         c = (expression.find('C') != string::npos);
         opsfound.clear();
-        if (containsop(expression, "NAND")) opsfound.push_back("NAND");
-        if (containsop(expression, "NOR"))  opsfound.push_back("NOR");
-        if (containsop(expression, "AND"))  opsfound.push_back("AND");
-        if (containsop(expression, "OR"))   opsfound.push_back("OR");
-        if (containsop(expression, "NOT"))  opsfound.push_back("NOT");
-        if (containsop(expression, "XOR"))  opsfound.push_back("XOR");
- 
-        if ((int)opsfound.size() > 3){
+        if (containsop(expression, "NAND"))
+            opsfound.push_back("NAND");
+        if (containsop(expression, "NOR"))
+            opsfound.push_back("NOR");
+        if (containsop(expression, "AND"))
+            opsfound.push_back("AND");
+        if (containsop(expression, "OR"))
+            opsfound.push_back("OR");
+        if (containsop(expression, "NOT"))
+            opsfound.push_back("NOT");
+        if (containsop(expression, "XOR"))
+            opsfound.push_back("XOR");
+
+        if ((int)opsfound.size() > 3)
+        {
             cout << "[WARNING] More than 3 operators detected. Results may be unexpected.\n";
         }
-        
-        }
+    }
     string getexpression() const { return expression; }
-    bool geta() const { return a; } 
+    bool geta() const { return a; }
     bool getb() const { return b; }
     bool getc() const { return c; }
     vector<string> getOpsFound() const { return opsfound; }
 
-    bool evaluate(bool valA, bool valB, bool valC) const{
+    bool evaluate(bool valA, bool valB, bool valC) const
+    {
         vector<string> tokens;
         string current = "";
-        for (int i = 0; i < (int)expression.size(); i++){
+        for (int i = 0; i < (int)expression.size(); i++)
+        {
             char ch = expression[i];
- 
-            if (ch == ' ') {
-                if (!current.empty()) {tokens.push_back(current); current = "";}
+
+            if (ch == ' ')
+            {
+                if (!current.empty())
+                {
+                    tokens.push_back(current);
+                    current = "";
+                }
             }
-            else if (ch == '(' || ch == ')'){
-                if (!current.empty()) {tokens.push_back(current); current = "";}
+            else if (ch == '(' || ch == ')')
+            {
+                if (!current.empty())
+                {
+                    tokens.push_back(current);
+                    current = "";
+                }
                 tokens.push_back(string(1, ch));
             }
-            else{
+            else
+            {
                 current += ch;
             }
         }
-        if (!current.empty()) tokens.push_back(current);
+        if (!current.empty())
+            tokens.push_back(current);
         vector<bool> valuestack;
         vector<string> opstack;
-        
+
         auto applyTop = [&]()
         {
-            string op = opstack.back(); opstack.pop_back();
-            if (op == "NOT"){
-                bool a = valuestack.back(); valuestack.pop_back();
+            string op = opstack.back();
+            opstack.pop_back();
+            if (op == "NOT")
+            {
+                bool a = valuestack.back();
+                valuestack.pop_back();
                 valuestack.push_back(!a);
-            } else{
-                bool b = valuestack.back(); valuestack.pop_back();
-                bool a = valuestack.back(); valuestack.pop_back();
- 
-                if (op == "AND")  valuestack.push_back(a && b);
-                else if (op == "OR")   valuestack.push_back(a || b);
-                else if (op == "XOR")  valuestack.push_back(a != b);
-                else if (op == "NAND") valuestack.push_back(!(a && b));
-                else if (op == "NOR")  valuestack.push_back(!(a || b));
+            }
+            else
+            {
+                bool b = valuestack.back();
+                valuestack.pop_back();
+                bool a = valuestack.back();
+                valuestack.pop_back();
+
+                if (op == "AND")
+                    valuestack.push_back(a && b);
+                else if (op == "OR")
+                    valuestack.push_back(a || b);
+                else if (op == "XOR")
+                    valuestack.push_back(a != b);
+                else if (op == "NAND")
+                    valuestack.push_back(!(a && b));
+                else if (op == "NOR")
+                    valuestack.push_back(!(a || b));
             }
         };
-        
+
+        auto precedence = [](const string &op) -> int
+        {
+            if (op == "NOT")
+                return 3;
+            if (op == "AND" || op == "NAND")
+                return 2;
+            return 1;
+        };
+
+        for (const string &tok : tokens)
+        {
+            if (tok == "A")
+            {
+                valuestack.push_back(valA);
+            }
+            else if (tok == "B")
+            {
+                valuestack.push_back(valB);
+            }
+            else if (tok == "C")
+            {
+                valuestack.push_back(valC);
+            }
+            else if (tok == "(")
+            {
+                opstack.push_back("(");
+            }
+            else if (tok == ")")
+            {
+                while (!opstack.empty() && opstack.back() != "(")
+                    applyTop();
+                if (!opstack.empty())
+                    opstack.pop_back(); // remove "("
+            }
+            else if (tok == "AND" || tok == "OR" || tok == "NOT" ||
+                     tok == "XOR" || tok == "NAND" || tok == "NOR")
+            {
+                while (!opstack.empty() &&
+                       opstack.back() != "(" &&
+                       precedence(opstack.back()) >= precedence(tok) &&
+                       tok != "NOT")
+                {
+                    applyTop();
+                }
+                opstack.push_back(tok);
+            }
+        }
+        while (!opstack.empty())
+            applyTop();
+
+        if (!valuestack.empty())
+            return valuestack.back();
+        return false;
+    }
+};
+class TruthTable
+{
+private:
+    boolexpression &expr;
+
+public:
+    TruthTable(boolexpression &e) : expr(e) {}
+
+    void print(ostream &out) const
+    {
+        bool useA = expr.geta();
+        bool useB = expr.getb();
+        bool useC = expr.getc();
+        string exprStr = expr.getexpression();
+
+        out << "| ";
+        if (useA)
+            out << "A | ";
+        if (useB)
+            out << "B | ";
+        if (useC)
+            out << "C | ";
+        out << exprStr << " |\n";
+
+        out << "|-";
+        if (useA)
+            out << "--|-";
+        if (useB)
+            out << "--|-";
+        if (useC)
+            out << "--|-";
+        for (int i = 0; i < (int)exprStr.size() + 2; i++)
+            out << "-";
+        out << "|\n";
+
+        int numVars = (useA ? 1 : 0) + (useB ? 1 : 0) + (useC ? 1 : 0);
+        int numRows = 1;
+        for (int i = 0; i < numVars; i++)
+            numRows *= 2;
+
+        for (int row = 0; row < numRows; row++)
+        {
+
+            bool valA = false, valB = false, valC = false;
+            int bit = numVars - 1;
+            if (useA)
+            {
+                valA = (row >> bit) & 1;
+                bit--;
+            }
+            if (useB)
+            {
+                valB = (row >> bit) & 1;
+                bit--;
+            }
+            if (useC)
+            {
+                valC = (row >> bit) & 1;
+            }
+
+            bool result = expr.evaluate(valA, valB, valC);
+
+            out << "| ";
+            if (useA)
+                out << valA << " | ";
+            if (useB)
+                out << valB << " | ";
+            if (useC)
+                out << valC << " | ";
+
+            int padding = (int)exprStr.size() / 2;
+            for (int i = 0; i < padding; i++)
+                out << " ";
+            out << result;
+            for (int i = 0; i < (int)exprStr.size() - padding; i++)
+                out << " ";
+            out << "|\n";
+        }
+    }
+};
